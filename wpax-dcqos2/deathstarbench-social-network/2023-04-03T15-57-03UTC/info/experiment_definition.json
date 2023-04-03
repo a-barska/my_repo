@@ -1,0 +1,99 @@
+{
+    "repositories": [
+        {
+            "type": "git",
+            "name": "a-barska-my-repo",
+            "branch": "master",
+            "path": "git@github.com:a-barska/my_repo.git",
+            "phases": [
+                "execute_pre_test"
+            ]
+        }
+    ],
+    "workloads": [],
+    "cluster": {
+        "context": "wpax-dcqos2",
+        "namespace": "deathstarbench-social-network",
+        "create_namespace": false
+    },
+    "telemetry": [],
+    "pre_test": [],
+    "test": {
+        "iterations": 1,
+        "items": [
+            {
+                "order": 1,
+                "cmd": "bash",
+                "target": "deployment/social-network-client",
+                "action": "",
+                "name": "",
+                "log_format": "wrk2",
+                "defaults": {},
+                "args_parallel": [],
+                "args_matrices": [
+                    {
+                        "R": [
+                            10000
+                        ],
+                        "t": [
+                            150
+                        ],
+                        "c": [
+                            1700
+                        ],
+                        "d": [
+                            5
+                        ]
+                    }
+                ],
+                "kwargs": {
+                    "args": [
+                        "wrk2/wrk -t{t} -c{c} -d {d}s -L -s \"socialnet/wrk-scripts/read-home-timeline.lua\" http://nginx-thrift:8080 -R {R}"
+                    ]
+                }
+            }
+        ]
+    },
+    "post_test": [
+        {
+            "order": 3,
+            "cmd": "github",
+            "target": "",
+            "action": "push_results",
+            "name": "",
+            "log_format": "",
+            "defaults": {},
+            "args_parallel": [],
+            "args_matrices": [],
+            "kwargs": {
+                "repositories": [
+                    "a-barska-my-repo"
+                ],
+                "commit_prefix": "Auto commit"
+            }
+        },
+        {
+            "order": 4,
+            "cmd": "github",
+            "target": "",
+            "action": "create_pull_request",
+            "name": "",
+            "log_format": "",
+            "defaults": {},
+            "args_parallel": [],
+            "args_matrices": [],
+            "kwargs": {
+                "repositories": [
+                    "a-barska-my-repo"
+                ],
+                "source_branch": "auto-push",
+                "target_branch": "master",
+                "title": "Auto PR creation",
+                "commit_prefix": "Auto commit "
+            }
+        }
+    ],
+    "teardown": {
+        "remove_namespace": false
+    }
+}
